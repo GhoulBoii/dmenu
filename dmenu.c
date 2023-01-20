@@ -46,6 +46,8 @@ static char *embed;
 static int bh, mw, mh;
 static int inputw = 0, promptw;
 static int lrpad; /* sum of left and right padding */
+static int vp; /* vertical padding for bar */
+static int sp; /* side padding for bar */
 static size_t cursor;
 static struct item *items = NULL;
 static struct item *matches, *matchend;
@@ -197,6 +199,7 @@ drawmenu(void)
 		x = drw_text(drw, x, 0, promptw, bh, lrpad / 2, prompt, 0
 		);
 	}
+
 	/* draw input field */
 	w = (lines > 0 || !matches) ? mw - x : inputw;
 
@@ -210,6 +213,7 @@ drawmenu(void)
 		drw_rect(drw, x + curpos, 2, 2, bh - 4, 1, 0);
 	}
 
+  rpad += 2 * sp;
 	if (lines > 0) {
 		/* draw vertical list */
 		for (item = curr; item != next; item = item->right)
@@ -751,7 +755,7 @@ setup(void)
 	;
 	win = XCreateWindow(
 		dpy, parentwin,
-		x, y, mw, mh, 0,
+		x + sp, y + vp, mw - 2 * sp, mh, 0,
 		CopyFromParent, CopyFromParent, CopyFromParent,
 		CWOverrideRedirect | CWBackPixel | CWEventMask, &swa
 	);
@@ -855,7 +859,8 @@ main(int argc, char *argv[])
 
 	lrpad = drw->fonts->h;
 
-
+  sp = sidepad;
+	vp = (topbar ? vertpad : - vertpad);
 
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath", NULL) == -1)
